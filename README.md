@@ -1,6 +1,6 @@
 # pointsrouges
 
-pointsrouges is a simple user interface (UI), written in python3 with PyQt5, to count objects in an image. It has been designed to count people (e.g., in a crowd). It is very elemental and needs some improvements, in particular in its user interface.
+*pointsrouges* is a simple user interface (UI), written in python3 with PyQt5, to count objects in an image. It has been designed to count people (e.g., in a crowd). It is very elemental and needs some improvements, in particular in its user interface.
 
 The idea is to use this UI to adjust the results of an algorithm that automatically detects people in a crowd (typically a machine learning algorithm). 
 
@@ -83,7 +83,7 @@ Then you can use *pointsrouges* (after moving or removing path/image.count if an
 
 	python3 pointsrouges.py path/image.jpg
 
-it will automatically load the ".dlcount" dots, and then edit the red dots.
+it will automatically load the ".dlcount" file, and then you can edit the red dots (the ".count" is used to save you work).
 
 ### Help for installing and running *P2PNet*
 
