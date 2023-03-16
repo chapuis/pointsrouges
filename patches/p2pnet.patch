@@ -1,0 +1,190 @@
+diff --git a/models/backbone.py b/models/backbone.py
+index 176d07e..690f2f8 100644
+--- a/models/backbone.py
++++ b/models/backbone.py
+@@ -34,15 +34,26 @@ class BackboneBase_VGG(nn.Module):
+         self.num_channels = num_channels
+         self.return_interm_layers = return_interm_layers
+ 
++    def print_memory(self, s):
++        t = torch.cuda.get_device_properties(0).total_memory/(1024*1024)
++        r = torch.cuda.memory_reserved(0)/(1024*1024)
++        a = torch.cuda.memory_allocated(0)/(1024*1024)
++        f = (t-a)  # free inside reserved
++        print("%s\t total: %d Mb, reserved: %d Mb, allocated: %d Mb, free: %d MB" % (s,t,r,a,f))
++
+     def forward(self, tensor_list):
+         out = []
+-
++        self.print_memory("entring fwd:")
++        torch.cuda.empty_cache()
+         if self.return_interm_layers:
++            print("loop")
+             xs = tensor_list
+             for _, layer in enumerate([self.body1, self.body2, self.body3, self.body4]):
++                #self.print_memory("tloop in: ")
+                 xs = layer(xs)
+                 out.append(xs)
+-
++                self.print_memory("tloop out: ")
++               
+         else:
+             xs = self.body(tensor_list)
+             out.append(xs)
+diff --git a/models/vgg_.py b/models/vgg_.py
+index 130083d..f5ba2b9 100644
+--- a/models/vgg_.py
++++ b/models/vgg_.py
+@@ -25,7 +25,7 @@ model_urls = {
+ 
+ 
+ model_paths = {
+-    'vgg16_bn': '/apdcephfs/private_changanwang/checkpoints/vgg16_bn-6c64b313.pth',
++    'vgg16_bn': '/home/olivier/svns/lisn-svn/chapuis/crowedcounter/dl/CrowdCounting-P2PNet/models/vgg16_bn-6c64b313.pth',
+     'vgg16': '/apdcephfs/private_changanwang/checkpoints/vgg16-397923af.pth',
+ 
+ }
+diff --git a/run_test.py b/run_test.py
+index 12c8e36..4c5490f 100644
+--- a/run_test.py
++++ b/run_test.py
+@@ -28,59 +28,76 @@ def get_args_parser():
+                         help="row number of anchor points")
+     parser.add_argument('--line', default=2, type=int,
+                         help="line number of anchor points")
+-
+     parser.add_argument('--output_dir', default='',
+                         help='path where to save')
+     parser.add_argument('--weight_path', default='',
+                         help='path where the trained weights saved')
+-
+     parser.add_argument('--gpu_id', default=0, type=int, help='the gpu used for evaluation')
+-
++    parser.add_argument('--image',default='', help='image path') 
++    parser.add_argument('--scale',default=1.0, type=float,help='scale the input image (memory issue)')
++    parser.add_argument('--csize',default=2, type=int,help='scale the points output')
+     return parser
+ 
++def print_memory(args):
++    t = torch.cuda.get_device_properties(0).total_memory/(1024*1024)
++    r = torch.cuda.memory_reserved(0)/(1024*1024)
++    a = torch.cuda.memory_allocated(0)/(1024*1024)
++    f = (t-a) # free inside reserved
++    print("total: %d Mb, reserved: %d Mb, allocated: %d Mb, free: %d MB" % (t,r,a,f))
++
+ def main(args, debug=False):
+ 
+     os.environ["CUDA_VISIBLE_DEVICES"] = '{}'.format(args.gpu_id)
+ 
+     print(args)
+     device = torch.device('cuda')
+-    # get the P2PNet
++    print_memory(args)
++    print("build the P2PNet models")
+     model = build_model(args)
+     # move to GPU
+     model.to(device)
+-    # load trained model
++    print_memory(args)
++    print("load trained model")
+     if args.weight_path is not None:
+         checkpoint = torch.load(args.weight_path, map_location='cpu')
+         model.load_state_dict(checkpoint['model'])
++    #print_memory(args)
+     # convert to eval mode
+     model.eval()
+-    # create the pre-processing transform
++    print("create the pre-processing transform")
+     transform = standard_transforms.Compose([
+         standard_transforms.ToTensor(), 
+         standard_transforms.Normalize(mean=[0.485, 0.456, 0.406], std=[0.229, 0.224, 0.225]),
+     ])
++    #print_memory(args)
+ 
+-    # set your image path here
+-    img_path = "./vis/demo1.jpg"
+-    # load the images
+-    img_raw = Image.open(img_path).convert('RGB')
++    #
++    img_path = args.image
++    img_orig = Image.open(img_path).convert('RGB')
+     # round the size
+-    width, height = img_raw.size
+-    new_width = width // 128 * 128
+-    new_height = height // 128 * 128
+-    img_raw = img_raw.resize((new_width, new_height), Image.ANTIALIAS)
+-    # pre-proccessing
++    width, height = img_orig.size
++    print("image size: %d %d" % (width, height))
++    new_width = int(float(width)*args.scale) // 128 * 128
++    new_height = int(float(height)*args.scale) // 128 * 128
++    invscale_x = float(width)/float(new_width)
++    invscale_y =  float(height)/float(new_height)
++    print("scaled image size: %d %d %f %f" % (new_width, new_height, invscale_x, invscale_y))
++    img_raw = img_orig.resize((new_width, new_height), Image.ANTIALIAS)
++    print("pre-proccessing image")
+     img = transform(img_raw)
+ 
++    #print_memory(args)
++    print("tensor")
+     samples = torch.Tensor(img).unsqueeze(0)
+     samples = samples.to(device)
+-    # run inference
++
++    print("run inference")
+     outputs = model(samples)
+     outputs_scores = torch.nn.functional.softmax(outputs['pred_logits'], -1)[:, :, 1][0]
+-
+     outputs_points = outputs['pred_points'][0]
++    print_memory(args)
+ 
+-    threshold = 0.5
++    threshold = 0.25
+     # filter the predictions
+     points = outputs_points[outputs_scores > threshold].detach().cpu().numpy().tolist()
+     predict_cnt = int((outputs_scores > threshold).sum())
+@@ -89,13 +106,22 @@ def main(args, debug=False):
+ 
+     outputs_points = outputs['pred_points'][0]
+     # draw the predictions
+-    size = 2
+-    img_to_draw = cv2.cvtColor(np.array(img_raw), cv2.COLOR_RGB2BGR)
++    size = args.csize
++    img_to_draw_orig = cv2.cvtColor(np.array(img_orig), cv2.COLOR_RGB2BGR)
++    img_to_draw_scaled = cv2.cvtColor(np.array(img_raw), cv2.COLOR_RGB2BGR)
++    print("crowd: %d", len(points) )
++    dbn = os.path.splitext(args.image)[0]
++    dbn = dbn + ".dlcount"
++    print("dlcount file:" + dbn)
++    cfile = open(dbn, 'w')
+     for p in points:
+-        img_to_draw = cv2.circle(img_to_draw, (int(p[0]), int(p[1])), size, (0, 0, 255), -1)
++        cfile.write('%d,%d\n' % ( int(p[0]*invscale_x), int(p[1]*invscale_y) ))
++        img_to_draw_orig = cv2.circle(img_to_draw_orig, (int(p[0]*invscale_x), int(p[1]*invscale_y)), size, (0, 0, 255), -1)
++        img_to_draw_scaled = cv2.circle(img_to_draw_scaled, (int(p[0]), int(p[1])), size, (0, 0, 255), -1)
++    cfile.flush()
+     # save the visualized image
+-    cv2.imwrite(os.path.join(args.output_dir, 'pred{}.jpg'.format(predict_cnt)), img_to_draw)
+-
++    cv2.imwrite(os.path.join(args.output_dir, 'pred-orig-{}.jpg'.format(predict_cnt)), img_to_draw_orig)
++    cv2.imwrite(os.path.join(args.output_dir, 'pred-scaled-{}.jpg'.format(predict_cnt)), img_to_draw_scaled)
+ if __name__ == '__main__':
+     parser = argparse.ArgumentParser('P2PNet evaluation script', parents=[get_args_parser()])
+     args = parser.parse_args()
+diff --git a/util/misc.py b/util/misc.py
+index 8a67c26..e3a71cb 100644
+--- a/util/misc.py
++++ b/util/misc.py
+@@ -22,9 +22,9 @@ from torch.autograd import Variable
+ 
+ # needed due to empty tensor bug in pytorch and torchvision 0.5
+ import torchvision
+-if float(torchvision.__version__[:3]) < 0.7:
+-    from torchvision.ops import _new_empty_tensor
+-    from torchvision.ops.misc import _output_size
++#if float(torchvision.__version__[:3]) < 0.7:
++    # from torchvision.ops import _new_empty_tensor
++    #from torchvision.ops.misc import _output_size
+ 
+ 
+ class SmoothedValue(object):
