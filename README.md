@@ -50,22 +50,23 @@ https://github.com/tencentyouturesearch/crowdcounting-p2pnet
 
 ### P2PNet howto
 
-Follow the following set (more details soon):
+Follow the following step:
 
-- Note that the use of *P2PNet* is restricted to academic use (if I well understand)
+Note that the use of *P2PNet* is restricted to academic use (if I well understand)
 
-- You need a computer that support CUDA (NVIDIA GPU) and several python3 library with cuda support (Torch, Torchvision) or not (TODO)
+You need a computer that support CUDA (NVIDIA GPU) and several python3 library with cuda support (Torch, Torchvision) or not (TODO)
 
-- In the *pointsrouges* directory:
+In the *pointsrouges* directory:
+
 	git clone https://github.com/TencentYoutuResearch/CrowdCounting-P2PNet.git
 
-- Apply the p2pnet.patch patch:
+Apply the p2pnet.patch patch:
 	
 	cd CrowdCounting-P2PNet
 	git apply ../patches/p2pnet.patch
 	mkdir logs/
 
-- To detect people in an image path/image.jpg:
+To detect people in an image path/image.jpg:
 
 	 \__NV_PRIME_RENDER_OFFLOAD=1 CUDA_VISIBLE_DEVICES=0 python3 run_test.py --weight_path ./weights/SHTechA.pth --output_dir ./logs/  -image path/image.jpg --scale 0.35
 
@@ -73,9 +74,9 @@ if everything work well *P2PNet* build a file:
 
 	path/image.dlcount
 
-with the coordinates of the points where it detected a person. It also output an image predXXX.jpg in logs/ where XXX is the number of people detected in the image. If you have a "CUDA out of memory" error you should reduce the number of the --scale option (you can start with --scale 1.0 and reduce the scale until you do not get the memory error).
+with the coordinates of the points where it detected a person. It also output images pred-[orig,scaled]-XXX.jpg in logs/ where XXX is the number of people detected in the image. If you have a "CUDA out of memory" error you should reduce the number of the --scale option (you can start with --scale 1.0 and reduce the scale until you do not get the memory error).
 
-- Then you can use *pointsrouges* (after moving or removing path/image.count if any):
+Then you can use *pointsrouges* (after moving or removing path/image.count if any):
 
 	python3 pointsrouges.py path/image.jpg
 
@@ -83,4 +84,4 @@ it will automatically load the ".dlcount" dots, and then edit the red dots.
 
 ### Help for running *P2PNet*
 
-TODO. For now ask me by email.
+TODO. For now, ask me by email.
