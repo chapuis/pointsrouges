@@ -83,7 +83,7 @@ Then you can use *pointsrouges* (after moving or removing path/image.count if an
 
 	python3 pointsrouges.py path/image.jpg
 
-it will automatically load the ".dlcount" file, and then you can edit the red dots (the ".count" is used to save you work).
+it will automatically load the ".dlcount" file, and then you can edit the red dots (the ".count" file is used to save you work, and used at the next loading).
 
 ### Help for installing and running *P2PNet*
 
