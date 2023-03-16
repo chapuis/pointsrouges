@@ -47,14 +47,15 @@ I tested P2PNet to create an initial set of red dots for *pointsrouges*:
 
 https://github.com/tencentyouturesearch/crowdcounting-p2pnet
 
+Note that the use of *P2PNet* is restricted to academic use (if I well understand)
 
 ### P2PNet howto
 
 Follow the following step:
 
-Note that the use of *P2PNet* is restricted to academic use (if I well understand)
+* Install:
 
-You need a computer that support CUDA (NVIDIA GPU) and several python3 library with cuda support (Torch, Torchvision) or not (TODO)
+You need a computer that support CUDA (NVIDIA GPU) and several python3 library with cuda support (pytorch, pytorchvision, etc.) or not (TODO): see the P2PNet Readme (I use the latest stable version of torch, torchvision, etc.).
 
 In the *pointsrouges* directory:
 
@@ -65,6 +66,8 @@ Apply the p2pnet.patch patch:
 	cd CrowdCounting-P2PNet
 	git apply ../patches/p2pnet.patch
 	mkdir logs/
+
+* Use:
 
 To detect people in an image path/image.jpg:
 
@@ -82,6 +85,6 @@ Then you can use *pointsrouges* (after moving or removing path/image.count if an
 
 it will automatically load the ".dlcount" dots, and then edit the red dots.
 
-### Help for running *P2PNet*
+### Help for installing and running *P2PNet*
 
 TODO. For now, ask me by email.
