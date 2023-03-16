@@ -8,7 +8,9 @@ contact: olivier.chapuis@lisn.upsaclay.fr
 
 ## How To
 
-python3 pointsrouges.py path/image.jpg
+Run:
+
+	python3 pointsrouges.py path/image.jpg
 
 If opencv for python3 is installed, the first time you open an image with *pointsrouges*, it runs a face detection algorithm and adds a red dot on the image where it detected a face (the result is limited on a crowd, unfortunately, but see the section on P2PNet below). 
 

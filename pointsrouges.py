@@ -1,6 +1,6 @@
 ## code by Olivier Chapuis <olivier.chapuis@lisn.upsaclay.fr>
 ## and public domaine code from the internet
-## LICENSE: public domaine
+## LICENSE: see LICENSE
 
 import os
 import sys
