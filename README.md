@@ -71,7 +71,7 @@ Apply the p2pnet.patch patch:
 
 To detect people in an image path/image.jpg:
 
-	 __NV_PRIME_RENDER_OFFLOAD=1 CUDA_VISIBLE_DEVICES=0 python3 run_test.py --weight_path ./weights/SHTechA.pth --output_dir ./logs/  -image path/image.jpg --scale 0.35
+	 __NV_PRIME_RENDER_OFFLOAD=1 CUDA_VISIBLE_DEVICES=0 python3 run_test.py --weight_path ./weights/SHTechA.pth --output_dir ./logs/  --image path/image.jpg --scale 0.35
 
 if everything work well *P2PNet* build a file:
 
