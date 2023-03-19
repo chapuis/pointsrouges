@@ -622,7 +622,7 @@ class Window(QtWidgets.QWidget):
             print("count file does not exit, create it: " + dbc)
             self._count_filename = dbc
             self._cfile = open(dbc, 'w')
-            self.detectfaces(fileName)
+            self.detect_faces(fileName)
 
     def print_image(self):
         if not self.viewer.has_image():
@@ -662,7 +662,7 @@ class Window(QtWidgets.QWidget):
     def update_count(self, count):
         self.countInfo.setText('%d' % count) 
 
-    def detectfaces(self, filename):
+    def detect_faces(self, filename):
         try:
             import cv2
         except:
@@ -688,6 +688,36 @@ class Window(QtWidgets.QWidget):
         for p in qfaces:
             self.point_added(p)
 
+    # stupid
+    def detect_contours(self, filename):
+        try:
+            import cv2
+        except:
+            print("install python3 opencv if you want face detection\n the first time you open an image file")
+            return
+        # Read the input image
+        img = cv2.imread(filename)
+        # Convert into grayscale
+        gray_frame = cv2.cvtColor(img, cv2.COLOR_BGR2GRAY)
+        # Applying Gaussian Blur to reduce noise
+        blur_frame = cv2.GaussianBlur(gray_frame, (11,11), 0)
+        # Binarizing frame - Thresholding
+        ret, threshold_frame = cv2.threshold(blur_frame, 0, 255, cv2.THRESH_BINARY + cv2.THRESH_OTSU)
+        cv2.imwrite("test.png", threshold_frame)
+        # Identifying Contours
+        (contours, _ ) = cv2.findContours(threshold_frame.copy(), cv2.RETR_EXTERNAL, cv2.CHAIN_APPROX_SIMPLE)
+        # Drawing Boundary Boxes for each Contour
+        qfaces = []
+        for i in contours:
+            x, y, w, h = cv2.boundingRect(i)
+            qp = QtCore.QPoint(int(x+(w/2)), int(y+(h/2)))
+            qfaces.append(qp)
+        print("opencv found %d contour" % len(qfaces))
+        if len(qfaces) > 0:
+           self.viewer.add_points(qfaces)
+        for p in qfaces:
+            self.point_added(p)
+
 if __name__ == '__main__':
     app = QtWidgets.QApplication(sys.argv)
     c = 0
@@ -702,7 +732,7 @@ if __name__ == '__main__':
     sg = screen.size()
     #sg = QtGui.QDesktopWidget().screenGeometry()
     window.resize(int(sg.width()/2), int(sg.height()/2))
-    window.setWindowTitle('Crowd Counter')
+    window.setWindowTitle('pointsrouges')
     window.show()
     if fn is not None:
         window.load_image(fn)
