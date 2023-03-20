@@ -305,6 +305,7 @@ class ImageViewer(QtWidgets.QGraphicsView):
         if pindex >= 0 and pindex < len(self._points):
             #print("remove point %d" % pindex)
             del self._points[pindex]
+            self._count -= 1
         elif rindex >= 0 and rindex < len(self._rectangles):
             del self._rectangles[rindex]
         self.redraw()
