@@ -561,7 +561,7 @@ class Window(QtWidgets.QWidget):
 
     def open_image(self):
         options = QFileDialog.Options()
-        options |= QFileDialog.DontUseNativeDialog
+        # options |= QFileDialog.DontUseNativeDialog
         fileName, _ = QFileDialog.getOpenFileName(self,"QFileDialog.getOpenFileName()", "","All Files (*);;JPEG (*.jpeg);;JPG (*.jpg);;PNG (*.png)", options=options)
         if fileName:
            print("attept to load: " + fileName)
