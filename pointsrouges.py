@@ -298,12 +298,12 @@ class ImageViewer(QtWidgets.QGraphicsView):
         self.update_count.emit(self._count)
 
     def remove_point_or_rect(self, pindex, rindex, aindex):
-        #print("remove_point_or_rect %d %d %d" % (pindex, rindex, aindex))
-        if aindex < 0 and aindex >= len(self._alls):
-            return
+        print("remove_point_or_rect %d %d %d %d" % (pindex, rindex, aindex, len(self._alls)))
+        if aindex < 0 or aindex >= len(self._alls):
+            return()
         del self._alls[aindex]
         if pindex >= 0 and pindex < len(self._points):
-            #print("remove point %d" % pindex)
+            print("remove point %d" % pindex)
             del self._points[pindex]
             self._count -= 1
         elif rindex >= 0 and rindex < len(self._rectangles):
