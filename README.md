@@ -1,3 +1,9 @@
+#  pointsrouges is dead
+
+If you are interested use *pointsverts* that support both images and videos:
+
+	https://gitlab.lisn.upsaclay.fr/chapuis/pointsverts
+
 # pointsrouges
 
 *pointsrouges* is a simple user interface (UI), written in python3 with PyQt5, to count objects in an image. It has been designed to count people (e.g., in a crowd). It is very elemental and needs some improvements, in particular in its user interface.

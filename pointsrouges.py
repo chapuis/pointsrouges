@@ -12,8 +12,8 @@ from PyQt5.QtWidgets import QInputDialog, QFileDialog
 #from PyQt5.QtWidgets import QGraphicsScene, QGraphicsView, QGraphicsPixmapItem, QApplication
 
 class RectangleDialog(QtWidgets.QDialog):
-    def __init__(self, iv):
-        super().__init__()
+    def __init__(self, parent):
+        super().__init__(parent)
         self.setWindowTitle("Rectangle Dialogue")
 
         #iv.coucou()
@@ -136,7 +136,7 @@ class ImageViewer(QtWidgets.QGraphicsView):
             self.setDragMode(QtWidgets.QGraphicsView.ScrollHandDrag)
             self._image.setPixmap(pixmap)
             # Créez un pixmap transparent pour dessiner sur le dessus de l'image
-            print(pixmap.size())
+            #print(pixmap.size())
             self._overlay_pixmap = QtGui.QPixmap(pixmap.size())
             self._overlay_pixmap.fill(QtCore.Qt.transparent)
             self._overlay.setPixmap(self._overlay_pixmap)
